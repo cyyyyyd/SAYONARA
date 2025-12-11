@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CitaMed - Demostración de API</title>
+    <!-- Carga de Tailwind CSS para un diseño limpio y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configuración de fuente y fondo */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl p-6 md:p-10 border-t-8 border-indigo-500">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-700">CitaMed: Demostración del Primer Release</h1>
+            <p class="text-gray-500 mt-2">Verificación de APIs de Autenticación y Citas</p>
+        </header>
+
+        <!-- Contenedor de Mensajes de Estado (Global) -->
+        <div id="message-container" class="mb-6"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- --------------------------------- -->
+            <!-- MÓDULO DE REGISTRO (HU-01) -->
+            <!-- --------------------------------- -->
+            <div class="p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">1. Registro de Pacientes</h2>
+                <form id="registroForm">
+                    <div class="mb-4">
+                        <label for="reg-nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                        <input type="text" id="reg-nombre" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="reg-email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="reg-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="reg-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input type="password" id="reg-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150">
+                        Registrarse
+                    </button>
+                </form>
+            </div>
+
+            <!-- --------------------------------- -->
+            <!-- MÓDULO DE LOGIN (HU-02) -->
+            <!-- --------------------------------- -->
+            <div class="p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">2. Inicio de Sesión</h2>
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label for="log-email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="log-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="log-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input type="password" id="log-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" required>
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition duration-150">
+                        Iniciar Sesión
+                    </button>
+                </form>
+
+                <div id="login-status" class="mt-6 p-3 bg-white border rounded-md hidden"></div>
+            </div>
+        </div>
+
+        <!-- --------------------------------- -->
+        <!-- MÓDULO DE AGENDAMIENTO (HU-07) -->
+        <!-- --------------------------------- -->
+        <div class="mt-10 p-6 border-4 border-dashed border-indigo-300 bg-indigo-50 rounded-lg">
+            <h2 class="text-2xl font-semibold text-indigo-700 mb-4">3. Agendamiento de Cita (Requiere Login)</h2>
+            <p class="text-sm text-gray-600 mb-4">Una vez inicies sesión, el ID del paciente se completará automáticamente.</p>
+            <form id="citaForm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="mb-4">
+                        <label for="cita-id-paciente" class="block text-sm font-medium text-gray-700">ID Paciente</label>
+                        <input type="number" id="cita-id-paciente" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white" placeholder="ID" required>
+                    </div>
+                     <div class="mb-4">
+                        <label for="cita-id-doctor" class="block text-sm font-medium text-gray-700">ID Doctor (Fijo: 1)</label>
+                        <input type="number" id="cita-id-doctor" value="1" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200">
+                    </div>
+                    <div class="mb-4">
+                        <label for="cita-fecha-hora" class="block text-sm font-medium text-gray-700">Fecha y Hora (YYYY-MM-DD HH:MM:SS)</label>
+                        <input type="text" id="cita-fecha-hora" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Ej. 2026-03-20 15:00:00" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 transition duration-150 mt-4">
+                    Agendar Cita
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // URL base de tu servidor Flask
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+        const messageContainer = document.getElementById('message-container');
+        const loginStatus = document.getElementById('login-status');
+        const citaPacienteIdInput = document.getElementById('cita-id-paciente');
+
+        // Función para mostrar mensajes
+        function displayMessage(type, message) {
+            const color = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 
+                          type === 'error' ? 'bg-red-100 border-red-400 text-red-700' :
+                          'bg-yellow-100 border-yellow-400 text-yellow-700';
+            messageContainer.innerHTML = `
+                <div class="${color} border px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">${type.toUpperCase()}:</strong>
+                    <span class="block sm:inline">${message}</span>
+                </div>
+            `;
+            // Quitamos el mensaje después de 7 segundos
+            setTimeout(() => { messageContainer.innerHTML = ''; }, 7000); 
+        }
+
+        // ---------------------------------
+        // MANEJO DE REGISTRO (HU-01)
+        // ---------------------------------
+        document.getElementById('registroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                nombre: document.getElementById('reg-nombre').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/pacientes/registro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    displayMessage('success', `Registro exitoso para ${result.paciente}. ¡Ahora puedes iniciar sesión!`);
+                    document.getElementById('registroForm').reset();
+                } else {
+                    displayMessage('error', `Fallo en Registro (${response.status}): ${result.mensaje || response.statusText}`);
+                }
+            } catch (error) {
+                displayMessage('error', `Error de conexión con el servidor Flask: Asegúrate de que flask run esté activo.`);
+            }
+        });
+
+        // ---------------------------------
+        // MANEJO DE LOGIN (HU-02)
+        // ---------------------------------
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                email: document.getElementById('log-email').value,
+                password: document.getElementById('log-password').value,
+            };
+
+            loginStatus.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/pacientes/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+
+                loginStatus.classList.remove('hidden');
+
+                if (response.ok) {
+                    // Criterio de Aceptación: ID del paciente devuelto
+                    const pacienteId = result.paciente_id;
+                    displayMessage('success', `Login exitoso. ID de Paciente: ${pacienteId}`);
+                    
+                    loginStatus.classList.remove('bg-red-100');
+                    loginStatus.classList.add('bg-green-100');
+                    loginStatus.innerHTML = `<p class="font-bold text-green-700">ID DEVUELTO:</p><p class="text-lg text-green-800">${pacienteId}</p>`;
+                    
+                    // Rellena el campo de cita automáticamente
+                    citaPacienteIdInput.value = pacienteId; 
+
+                } else {
+                    displayMessage('error', `Fallo en Login (${response.status}): ${result.mensaje}`);
+                    loginStatus.classList.remove('bg-green-100');
+                    loginStatus.classList.add('bg-red-100');
+                    loginStatus.innerHTML = `<p class="text-red-700">Error: ${result.mensaje}</p>`;
+                }
+            } catch (error) {
+                displayMessage('error', `Error de conexión con el servidor Flask: Asegúrate de que flask run esté activo.`);
+            }
+        });
+
+        // ---------------------------------
+        // MANEJO DE AGENDAMIENTO (HU-07)
+        // ---------------------------------
+        document.getElementById('citaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Nota: La fecha/hora debe ser validada en el backend
+            const data = {
+                paciente_id: parseInt(document.getElementById('cita-id-paciente').value),
+                doctor_id: parseInt(document.getElementById('cita-id-doctor').value),
+                fecha_hora: document.getElementById('cita-fecha-hora').value,
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/citas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+
+                if (response.status === 201) {
+                    displayMessage('success', `¡Cita agendada! Mensaje: ${result.mensaje}`);
+                } else if (response.status === 409) {
+                    // Criterio de Aceptación: Bloquear duplicado (Validación RNF/RF-4)
+                    displayMessage('warning', `¡CITA BLOQUEADA! Razón (409 Conflict): ${result.mensaje}`);
+                } else {
+                    displayMessage('error', `Error al agendar (${response.status}): ${result.mensaje || response.statusText}`);
+                }
+            } catch (error) {
+                displayMessage('error', `Error de conexión con el servidor Flask: Asegúrate de que flask run esté activo.`);
+            }
+        });
+    </script>
+</body>
+</html>
